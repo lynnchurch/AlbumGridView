@@ -113,6 +113,9 @@ public class UrlTouchImageView extends RelativeLayout
 				FailReason failReason)
 		{
 			mProgressBar.setVisibility(View.GONE);
+			mImageView.setVisibility(View.VISIBLE);
+			mImageView.setImageDrawable(mLargeImageOptions
+					.getImageOnFail(mContext.getResources()));
 		}
 
 		@Override
