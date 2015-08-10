@@ -7,15 +7,21 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity
+{
 	private AlbumGridView agv_album;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		DisplayImageOptions options = new DisplayImageOptions.Builder().build();
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+				.showImageForEmptyUri(R.drawable.no_photo)
+				.showImageOnFail(R.drawable.no_photo)
+				.showImageOnLoading(R.drawable.no_photo).cacheInMemory(true)
+				.cacheOnDisk(true).build();
 		ArrayList<String> imageUrls = new ArrayList<String>();
 		imageUrls
 				.add("http://img.hb.aicdn.com/93fce6871c233ca167d03bd0b3f70b664a5b97ee12411-DneVuu_fw236");
@@ -35,7 +41,7 @@ public class MainActivity extends Activity {
 				.add("http://img.hb.aicdn.com/36beb4446b6bfbe1c939899f2ccc7c82ef315348dd7e2-zE2FCT_fw658");
 
 		agv_album = (AlbumGridView) findViewById(R.id.agv_album);
-		agv_album.setDisplayImageOptions(options);
+		agv_album.setDisplayImageOptions(options, options);
 		agv_album.addLargeImages(imageUrls);
 		agv_album.addThumbnails(imageUrls);
 

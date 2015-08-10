@@ -74,9 +74,9 @@ public class AlbumGridView extends GridView
 		mLargeImageUrls.addAll(largeImages);
 	}
 
-	public void setDisplayImageOptions(DisplayImageOptions options)
+	public void setDisplayImageOptions(DisplayImageOptions thumbnailOptions,DisplayImageOptions largeImageOptions)
 	{
-		mAdapter.setDisplayImageOptions(options);
+		mAdapter.setDisplayImageOptions(thumbnailOptions,largeImageOptions);
 	}
 
 }

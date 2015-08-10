@@ -19,121 +19,126 @@ package com.lynnchurch.touchview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-import com.lynnchurch.albumgridview.R;
-import com.lynnchurch.touchview.InputStreamWrapper.InputStreamProgressListener;
+public class UrlTouchImageView extends RelativeLayout
+{
+	protected ProgressBar mProgressBar;
+	protected TouchImageView mImageView;
+	private static DisplayImageOptions mLargeImageOptions;
+	protected Context mContext;
 
-public class UrlTouchImageView extends RelativeLayout {
-    protected ProgressBar mProgressBar;
-    protected TouchImageView mImageView;
+	public UrlTouchImageView(Context ctx)
+	{
+		super(ctx);
+		mContext = ctx;
+		init();
 
-    protected Context mContext;
+	}
 
-    public UrlTouchImageView(Context ctx)
-    {
-        super(ctx);
-        mContext = ctx;
-        init();
+	public UrlTouchImageView(Context ctx, AttributeSet attrs)
+	{
+		super(ctx, attrs);
+		mContext = ctx;
+		init();
+	}
 
-    }
-    public UrlTouchImageView(Context ctx, AttributeSet attrs)
-    {
-        super(ctx, attrs);
-        mContext = ctx;
-        init();
-    }
-    public TouchImageView getImageView() { return mImageView; }
+	public TouchImageView getImageView()
+	{
+		return mImageView;
+	}
 
-    @SuppressWarnings("deprecation")
-    protected void init() {
-        mImageView = new TouchImageView(mContext);
-        LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-        mImageView.setLayoutParams(params);
-        this.addView(mImageView);
-        mImageView.setVisibility(GONE);
+	@SuppressWarnings("deprecation")
+	protected void init()
+	{
+		mImageView = new TouchImageView(mContext);
+		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.FILL_PARENT);
+		mImageView.setLayoutParams(params);
+		this.addView(mImageView);
+		mImageView.setVisibility(GONE);
 
-        mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleHorizontal);
-        params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.CENTER_VERTICAL);
-        params.setMargins(30, 0, 30, 0);
-        mProgressBar.setLayoutParams(params);
-        mProgressBar.setIndeterminate(false);
-        mProgressBar.setMax(100);
-        this.addView(mProgressBar);
-    }
+		mProgressBar = new ProgressBar(mContext, null,
+				android.R.attr.progressBarStyleHorizontal);
+		params = new LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.CENTER_VERTICAL);
+		params.setMargins(30, 0, 30, 0);
+		mProgressBar.setLayoutParams(params);
+		mProgressBar.setIndeterminate(false);
+		mProgressBar.setMax(100);
+		this.addView(mProgressBar);
+	}
 
-    public void setUrl(String imageUrl)
-    {
-        new ImageLoadTask().execute(imageUrl);
-    }
-    
-    public void setScaleType(ScaleType scaleType) {
-        mImageView.setScaleType(scaleType);
-    }
-    
-    //No caching load
-    public class ImageLoadTask extends AsyncTask<String, Integer, Bitmap>
-    {
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            String url = strings[0];
-            Bitmap bm = null;
-            try {
-                URL aURL = new URL(url);
-                URLConnection conn = aURL.openConnection();
-                conn.connect();
-                InputStream is = conn.getInputStream();
-                int totalLen = conn.getContentLength();
-                InputStreamWrapper bis = new InputStreamWrapper(is, 8192, totalLen);
-                bis.setProgressListener(new InputStreamProgressListener()
-				{					
-					@Override
-					public void onProgress(float progressValue, long bytesLoaded,
-							long bytesTotal)
-					{
-						publishProgress((int)(progressValue * 100));
-					}
-				});
-                bm = BitmapFactory.decodeStream(bis);
-                bis.close();
-                is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return bm;
-        }
-        
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-        	if (bitmap == null) 
-        	{
-        		mImageView.setScaleType(ScaleType.CENTER);
-        		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_photo);
-        		mImageView.setImageBitmap(bitmap);
-        	}
-        	else 
-        	{
-        		mImageView.setScaleType(ScaleType.MATRIX);
-	            mImageView.setImageBitmap(bitmap);
-        	}
-            mImageView.setVisibility(VISIBLE);
-            mProgressBar.setVisibility(GONE);
-        }
+	public void setUrl(String imageUrl)
+	{
+		if (null != mLargeImageOptions)
+		{
+			ImageLoader.getInstance().displayImage(imageUrl, mImageView,
+					mLargeImageOptions, mLoadingListener, mProgressListener);
+		} else
+		{
+			ImageLoader.getInstance().displayImage(imageUrl, mImageView,
+					mLoadingListener);
+			;
+		}
+	}
+
+	public void setScaleType(ScaleType scaleType)
+	{
+		mImageView.setScaleType(scaleType);
+	}
+
+	private SimpleImageLoadingListener mLoadingListener = new SimpleImageLoadingListener()
+	{
+		@Override
+		public void onLoadingStarted(String imageUri, View view)
+		{
+			mProgressBar.setProgress(0);
+			mProgressBar.setVisibility(View.VISIBLE);
+		}
 
 		@Override
-		protected void onProgressUpdate(Integer... values)
+		public void onLoadingFailed(String imageUri, View view,
+				FailReason failReason)
 		{
-			mProgressBar.setProgress(values[0]);
+			mProgressBar.setVisibility(View.GONE);
 		}
-    }
+
+		@Override
+		public void onLoadingComplete(String imageUri, View view,
+				Bitmap loadedImage)
+		{
+			mImageView.setScaleType(ScaleType.MATRIX);
+			mImageView.setImageBitmap(loadedImage);
+			mImageView.setVisibility(VISIBLE);
+			mProgressBar.setVisibility(GONE);
+		}
+	};
+
+	private ImageLoadingProgressListener mProgressListener = new ImageLoadingProgressListener()
+	{
+		@Override
+		public void onProgressUpdate(String imageUri, View view, int current,
+				int total)
+		{
+			mProgressBar.setProgress(Math.round(100.0f * current / total));
+		}
+	};
+
+	public static void setLargeImageOptions(
+			DisplayImageOptions largeImageOptions)
+	{
+		mLargeImageOptions = largeImageOptions;
+	}
 }

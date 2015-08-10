@@ -2,9 +2,11 @@ package com.lynnchurch.albumgridview;
 
 import java.util.ArrayList;
 
+import com.lynnchurch.touchview.UrlTouchImageView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +23,7 @@ public class AlbumGridAdapter extends BaseAdapter {
 
 	private ArrayList<String> mThumbnailUrls = new ArrayList<String>();
 	private Context mContext;
-	private DisplayImageOptions mOptions;
+	private DisplayImageOptions mThumbnailOptions;
 	private ViewHolder mHolder;
 
 	public AlbumGridAdapter(Context context) {
@@ -67,16 +69,17 @@ public class AlbumGridAdapter extends BaseAdapter {
 		}
 
 		String url = getItem(position);
-		if (null == mOptions) {
+		if (null == mThumbnailOptions) {
 			return convertView;
 		}
 		ImageLoader.getInstance()
-				.displayImage(url, mHolder.imageView, mOptions);
+				.displayImage(url, mHolder.imageView, mThumbnailOptions);
 		return convertView;
 	}
 
-	public void setDisplayImageOptions(DisplayImageOptions options) {
-		this.mOptions = options;
+	public void setDisplayImageOptions(DisplayImageOptions thumbnailOptions,DisplayImageOptions largeImageOptions) {
+		this.mThumbnailOptions = thumbnailOptions;
+		UrlTouchImageView.setLargeImageOptions(largeImageOptions);
 	}
 
 	/**
