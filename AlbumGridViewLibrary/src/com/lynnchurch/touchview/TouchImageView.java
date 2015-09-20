@@ -181,7 +181,7 @@ public class TouchImageView extends ImageView {
                             else {
                                 lastPressTime = pressTime;
                                 mClickTimer = new Timer();
-                                mClickTimer.schedule(new Task(), 300);
+                                mClickTimer.schedule(new Task(), 200);
                             }
                             if (saveScale == minScale) {
                                 scaleMatrixToBounds();
@@ -449,7 +449,8 @@ public class TouchImageView extends ImageView {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            float mScaleFactor = (float)Math.min(Math.max(.95f, detector.getScaleFactor()), 1.05);
+        	float scaleFactor=detector.getScaleFactor();
+            float mScaleFactor = (float)Math.min(Math.max(.95f, scaleFactor), 1.05);
             float origScale = saveScale;
             saveScale *= mScaleFactor;
             if (saveScale > maxScale) {
